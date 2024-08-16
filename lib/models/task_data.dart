@@ -34,7 +34,7 @@ class TaskData {
       final titleMatch = titlePattern.firstMatch(lines[0]);
       if (titleMatch != null) {
         type = titleMatch.group(1)!;
-        scope = titleMatch.group(2)!;
+        scope = titleMatch.group(2) ?? '';
         subject = titleMatch.group(3)!;
 
         if (lines.length > 1) {
@@ -67,7 +67,25 @@ class TaskData {
     if (type == 'default') {
       return subject;
     } else {
-      return '$type($scope): $subject\n\n$body\n\n$footer';
+      var result = type;
+      if (scope != '') {
+        result += '($scope)';
+      }
+      result += ': ';
+      if (subject != '') {
+        result += subject;
+      }
+
+      if (body != '') {
+        result += '\n\n$body';
+      }
+
+      if (footer != '') {
+        result += '\n\n$footer';
+      }
+
+      // return '$type($scope): $subject\n\n$body\n\n$footer';
+      return result;
     }
   }
 }

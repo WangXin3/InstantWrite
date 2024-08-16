@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instant_write/controller/summarize.dart';
+import 'package:instant_write/models/task_data.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 
@@ -10,7 +11,9 @@ class SummarizePage extends GetView<SummarizeController> {
 
   @override
   Widget build(BuildContext context) {
-    controller.fetchTaskDatasBetween(startTime: controller.startTime.value, endTime: controller.endTime.value);
+    controller.fetchTaskDatasBetween(
+        startTime: controller.startTime.value,
+        endTime: controller.endTime.value);
     final theme = Theme.of(context);
 
     return Column(
@@ -43,17 +46,17 @@ class SummarizePage extends GetView<SummarizeController> {
                             // 今日
                             if (value == controller.data[0]) {
                               controller.startTime.value = clearTime();
-                              controller.endTime.value = controller.startTime.value.add(
-                                  const Duration(
+                              controller.endTime.value =
+                                  controller.startTime.value.add(const Duration(
                                       hours: 23, minutes: 59, seconds: 59));
-                            } else if (value ==controller. data[1]) {
+                            } else if (value == controller.data[1]) {
                               // 本周
                               DateTime now = clearTime();
                               int daysOfWeek = now.weekday - 1;
                               controller.startTime.value = DateTime(
                                   now.year, now.month, now.day - daysOfWeek);
-                              controller.endTime.value = controller.startTime.value.add(
-                                  const Duration(
+                              controller.endTime.value =
+                                  controller.startTime.value.add(const Duration(
                                       days: 6,
                                       hours: 23,
                                       minutes: 59,
@@ -159,8 +162,16 @@ class SummarizePage extends GetView<SummarizeController> {
   }
 
   String getSummarizeData() {
-    List<String> subjectList =
-        controller.todos.map((taskData) => taskData.subject).toList();
+    controller.todos.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    List<String> subjectList = [];
+
+    for (var todo in controller.todos) {
+      subjectList.add("●${todo.subject}");
+      if (todo.body != '') {
+        List<String> bodyList = todo.body.split('\n');
+        subjectList.addAll(bodyList.map((b) => "  ○$b"));
+      }
+    }
 
     return subjectList.join('\n');
   }
